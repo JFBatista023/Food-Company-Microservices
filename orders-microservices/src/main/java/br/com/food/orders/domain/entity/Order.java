@@ -40,6 +40,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "ordered")
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "order")
     private List<OrderItem> items = new ArrayList<>();
 }

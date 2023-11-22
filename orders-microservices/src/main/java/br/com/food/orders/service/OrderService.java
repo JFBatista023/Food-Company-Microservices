@@ -21,7 +21,7 @@ public class OrderService {
 
     private OrderRepository orderRepository;
 
-    private final ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     public OrderService(OrderRepository orderRepository, ModelMapper modelMapper) {
         this.orderRepository = orderRepository;
