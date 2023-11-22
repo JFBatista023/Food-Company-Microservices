@@ -1,0 +1,68 @@
+package br.com.food.payments.controller;
+
+import java.net.URI;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import br.com.food.payments.dto.PaymentDTO;
+import br.com.food.payments.service.PaymentService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+
+@RestController
+@RequestMapping("/payments")
+public class PaymentController {
+
+    private PaymentService paymentService;
+
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @GetMapping
+    public Page<PaymentDTO> list(@PageableDefault(size = 10) Pageable pagination) {
+        return paymentService.getAllPayments(pagination);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PaymentDTO> detail(@PathVariable @NotNull Long id) {
+        PaymentDTO paymentDTO = paymentService.getPaymentById(id);
+
+        return ResponseEntity.ok(paymentDTO);
+    }
+
+    @PostMapping
+    public ResponseEntity<PaymentDTO> create(@RequestBody @Valid PaymentDTO paymentDTO, UriComponentsBuilder uBuilder) {
+        PaymentDTO payment = paymentService.createPayment(paymentDTO);
+        URI path = uBuilder.path("/pagamentos/{id}").buildAndExpand(payment.id()).toUri();
+
+        return ResponseEntity.created(path).body(payment);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PaymentDTO> update(@PathVariable @NotNull Long id,
+            @RequestBody @Valid PaymentDTO paymentDTO) {
+        PaymentDTO paymentUpdated = paymentService.updatePayment(id, paymentDTO);
+
+        return ResponseEntity.ok(paymentUpdated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<PaymentDTO> delete(@PathVariable @NotNull Long id) {
+        paymentService.deletePayment(id);
+
+        return ResponseEntity.noContent().build();
+    }
+}
