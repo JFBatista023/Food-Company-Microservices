@@ -1,5 +1,6 @@
 package br.com.food.orders.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -33,6 +34,11 @@ public class OrderController {
         OrderDTO orderDTO = orderService.getOrderById(id);
 
         return ResponseEntity.ok(orderDTO);
+    }
+
+    @GetMapping("/port")
+    public String returnPort(@Value("${local.server.port}") String port) {
+        return String.format("Request answered by port instance %s", port);
     }
 
     @PostMapping()
