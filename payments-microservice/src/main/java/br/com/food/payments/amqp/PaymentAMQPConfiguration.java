@@ -14,7 +14,7 @@ public class PaymentAMQPConfiguration {
 
     @Bean
     public Queue createQueue() {
-        return new Queue("payment.confirmed", false);
+        return new Queue("payments.created", false);
     }
 
     @Bean

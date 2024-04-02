@@ -2,6 +2,8 @@ package br.com.food.payments.controller;
 
 import java.net.URI;
 
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,10 +29,13 @@ import jakarta.validation.constraints.NotNull;
 @RequestMapping("/payments")
 public class PaymentController {
 
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
 
-    public PaymentController(PaymentService paymentService) {
+    private final RabbitTemplate rabbitTemplate;
+
+    public PaymentController(PaymentService paymentService, RabbitTemplate rabbitTemplate) {
         this.paymentService = paymentService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @GetMapping
@@ -48,7 +53,10 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<PaymentDTO> create(@RequestBody @Valid PaymentDTO paymentDTO, UriComponentsBuilder uBuilder) {
         PaymentDTO payment = paymentService.createPayment(paymentDTO);
-        URI path = uBuilder.path("/pagamentos/{id}").buildAndExpand(payment.getId()).toUri();
+        URI path = uBuilder.path("/payments/{id}").buildAndExpand(payment.getId()).toUri();
+
+        Message message = new Message(("Payment with id " + payment.getId() + " created.").getBytes());
+        rabbitTemplate.send("payments.created", message);
 
         return ResponseEntity.created(path).body(payment);
     }
