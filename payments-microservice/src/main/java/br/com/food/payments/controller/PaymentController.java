@@ -2,7 +2,6 @@ package br.com.food.payments.controller;
 
 import java.net.URI;
 
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,8 +54,7 @@ public class PaymentController {
         PaymentDTO payment = paymentService.createPayment(paymentDTO);
         URI path = uBuilder.path("/payments/{id}").buildAndExpand(payment.getId()).toUri();
 
-        Message message = new Message(("Payment with id " + payment.getId() + " created.").getBytes());
-        rabbitTemplate.send("payments.created", message);
+        rabbitTemplate.convertAndSend("payments.created", payment);
 
         return ResponseEntity.created(path).body(payment);
     }
