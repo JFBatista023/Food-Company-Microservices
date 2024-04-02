@@ -1,10 +1,7 @@
-package br.com.food.payments.dto;
+package br.com.food.orders.dto;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-import br.com.food.payments.domain.entity.OrderItem;
-import br.com.food.payments.domain.enums.Status;
 import lombok.Data;
 
 @Data
@@ -15,8 +12,7 @@ public class PaymentDTO {
         private String number;
         private String expirationDate;
         private String code;
-        private Status status;
+        private PaymentStatus status;
         private Long orderId;
         private Long paymentMethodId;
-        private List<OrderItem> items;
 }
