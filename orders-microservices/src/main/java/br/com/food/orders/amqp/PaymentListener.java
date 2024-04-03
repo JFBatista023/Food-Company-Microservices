@@ -1,14 +1,13 @@
 package br.com.food.orders.amqp;
 
+import br.com.food.orders.dto.PaymentDTO;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-
-import br.com.food.orders.dto.PaymentDTO;
 
 @Component
 public class PaymentListener {
 
-    @RabbitListener(queues = "payments.created")
+    @RabbitListener(queues = "payments.order-details")
     public void receiveMessage(PaymentDTO payment) {
         String message = """
                 Payment ID: %s

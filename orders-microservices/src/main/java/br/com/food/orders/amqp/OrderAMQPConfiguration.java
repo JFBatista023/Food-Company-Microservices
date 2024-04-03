@@ -1,6 +1,6 @@
 package br.com.food.orders.amqp;
 
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OrderAMQPConfiguration {
-    
+
     @Bean
     public Queue createQueue() {
         return new Queue("payments.created", false);
@@ -39,5 +39,20 @@ public class OrderAMQPConfiguration {
         rabbitTemplate.setMessageConverter(messageConverter);
 
         return rabbitTemplate;
+    }
+
+    @Bean
+    public Queue orderDetailsQueue() {
+        return QueueBuilder.nonDurable("payments.order-details").build();
+    }
+
+    @Bean
+    public FanoutExchange fanoutExchange() {
+        return ExchangeBuilder.fanoutExchange("payments.ex").build();
+    }
+
+    @Bean
+    public Binding orderPaymentBind(FanoutExchange fanoutExchange) {
+        return BindingBuilder.bind(orderDetailsQueue()).to(fanoutExchange);
     }
 }

@@ -1,28 +1,19 @@
 package br.com.food.payments.controller;
 
-import java.net.URI;
-
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import br.com.food.payments.dto.PaymentDTO;
 import br.com.food.payments.service.PaymentService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/payments")
@@ -54,14 +45,14 @@ public class PaymentController {
         PaymentDTO payment = paymentService.createPayment(paymentDTO);
         URI path = uBuilder.path("/payments/{id}").buildAndExpand(payment.getId()).toUri();
 
-        rabbitTemplate.convertAndSend("payments.created", payment);
+        rabbitTemplate.convertAndSend("payments.ex", "", payment);
 
         return ResponseEntity.created(path).body(payment);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PaymentDTO> update(@PathVariable @NotNull Long id,
-            @RequestBody @Valid PaymentDTO paymentDTO) {
+                                             @RequestBody @Valid PaymentDTO paymentDTO) {
         PaymentDTO paymentUpdated = paymentService.updatePayment(id, paymentDTO);
 
         return ResponseEntity.ok(paymentUpdated);
